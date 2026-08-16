@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile — Campus Market</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="shell-page profile-view">
+<div class="shell">
+    <header class="shell-topbar">
+        <button class="icon-btn" onclick="cmGoBack('index.html')" aria-label="Back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <h1>Profile</h1>
+        <span style="width:2.25rem;"></span>
+    </header>
+
+    <div class="shell-body">
+        <section class="profile-hero">
+            <div class="profile-hero-inner">
+                <div class="profile-avatar-wrap">
+                    <div class="avatar" id="profileAvatarWrap">
+                        <img id="profileAvatar" alt="Profile picture" style="display:none; width:100%; height:100%; object-fit:cover; border-radius:999px;">
+                        <span id="profileInitial">S</span>
+                    </div>
+                </div>
+                <div class="profile-hero-copy">
+                    <div class="profile-badges">
+                        <span class="badge badge-pill badge-seller" id="profileBadgePrimary">Verified seller</span>
+                        <span class="badge badge-pill badge-safe">Campus safe</span>
+                    </div>
+                    <h2 id="profileName">Student</h2>
+                    <p id="profileEmail">your.email@uenr.edu</p>
+                    <div class="profile-properties">
+                        <span id="profileStudentId" class="muted">Student ID not set</span>
+                    </div>
+                    <p id="accountStatusDetail" class="profile-status-detail">Your profile is ready. Upload a picture and start selling with confidence.</p>
+                </div>
+            </div>
+            <div class="profile-hero-actions">
+                <label for="profilePictureInput" class="btn btn-outline btn-sm btn-block">Upload profile picture</label>
+                <button class="btn btn-indigo btn-block" id="logoutLink">Log out</button>
+                <input id="profilePictureInput" type="file" accept="image/*" style="display:none;">
+                <div id="profilePictureStatus" class="help-text" style="margin-top:.45rem; font-size:.78rem;">Make your profile instantly more memorable.</div>
+            </div>
+        </section>
+
+        <section class="profile-actions-grid">
+            <a class="action-card" href="sell.html">
+                <span><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span>
+                <div>
+                    <strong>Sell new item</strong>
+                    <small>List with one tap.</small>
+                </div>
+                <span>›</span>
+            </a>
+            <a class="action-card" href="messages.html">
+                <span><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span>
+                <div>
+                    <strong>Open inbox</strong>
+                    <small>Respond to buyers faster.</small>
+                </div>
+                <span>›</span>
+            </a>
+            <a class="action-card" href="dashboard.html">
+                <span><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg></span>
+                <div>
+                    <strong>My listings</strong>
+                    <small>Track your active posts.</small>
+                </div>
+                <span>›</span>
+            </a>
+            <a class="action-card" href="browse.html?saved=1">
+                <span><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 17.3l-6.2 3.7 1.6-7-5.4-4.7 7.1-.6L12 2l2.9 6.7 7.1.6-5.4 4.7 1.6 7z"/></svg></span>
+                <div>
+                    <strong>Saved items</strong>
+                    <small>Visit your favorites.</small>
+                </div>
+                <span>›</span>
+            </a>
+        </section>
+
+        <section class="profile-section">
+            <div class="profile-card profile-summary">
+                <div>
+                    <strong>Quick access</strong>
+                    <p class="help-text" style="margin:.45rem 0 0;">Jump straight into your hottest seller tools and account settings.</p>
+                </div>
+                <div class="profile-quick-btns">
+                    <a class="btn btn-outline btn-sm btn-block" href="sell.html">Create a listing</a>
+                    <a class="btn btn-outline btn-sm btn-block" href="order-confirmation.html">View orders</a>
+                </div>
+            </div>
+
+            <div class="profile-menu">
+                <a href="dashboard.html"><span class="menu-row-label"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>My Listings</span><span>›</span></a>
+                <a href="order-confirmation.html"><span class="menu-row-label"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h6"/></svg>My Orders</span><span>›</span></a>
+                <a href="browse.html?saved=1"><span class="menu-row-label"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 17.3l-6.2 3.7 1.6-7-5.4-4.7 7.1-.6L12 2l2.9 6.7 7.1.6-5.4 4.7 1.6 7z"/></svg>Saved Items</span><span>›</span></a>
+                <a href="messages.html"><span class="menu-row-label"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Messages</span><span>›</span></a>
+                <a href="safe-zones.html"><span class="menu-row-label"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s7-7.5 7-12a7 7 0 10-14 0c0 4.5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>Safe Meetup Zones</span><span>›</span></a>
+                <a href="admin-login.html?returnTo=admin.html" id="adminLink" style="display:none;"><span class="menu-row-label"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 3v6c0 5-3.4 8.4-7 9-3.6-.6-7-4-7-9V6l7-3z"/></svg>Admin panel</span><span>›</span></a>
+                <a href="#" id="logoutMenuLink"><span class="menu-row-label"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>Log Out</span><span>›</span></a>
+            </div>
+        </section>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="index.html" data-nav-page="index.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/></svg>
+            Home
+        </a>
+        <a href="cart.html" data-nav-page="cart.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/><path d="M3 4h2l2.4 12h11.2L21 7H6"/></svg>
+            Cart
+        </a>
+        <a href="alerts.html" data-nav-page="alerts.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22a2.5 2.5 0 002.45-2h-4.9A2.5 2.5 0 0012 22zm6-6V11a6 6 0 10-12 0v5l-2 2v1h16v-1l-2-2z"/></svg>
+            Alerts
+        </a>
+        <a href="profile.html" data-nav-page="profile.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6"/></svg>
+            Profile
+        </a>
+    </nav>
+</div>
+</div>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/products.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+const user = cmGetUser();
+const profileAvatar = document.getElementById('profileAvatar');
+const profileAvatarWrap = document.getElementById('profileAvatarWrap');
+const profileInitial = document.getElementById('profileInitial');
+const pictureInput = document.getElementById('profilePictureInput');
+const pictureStatus = document.getElementById('profilePictureStatus');
+
+function renderProfile(userData) {
+    const resolved = userData || cmGetUser();
+    if (!resolved) return;
+    document.getElementById('profileName').textContent = resolved.name;
+    document.getElementById('profileEmail').textContent = resolved.email;
+    profileInitial.textContent = resolved.name.charAt(0).toUpperCase();
+    if (resolved.studentId) {
+        document.getElementById('profileStudentId').textContent = resolved.studentId;
+    }
+
+    if (resolved.avatarUrl) {
+        const avatarUrl = Api.resolveAssetUrl(resolved.avatarUrl);
+        profileAvatar.src = avatarUrl;
+        profileAvatar.style.display = 'block';
+        profileInitial.style.display = 'none';
+    } else {
+        profileAvatar.removeAttribute('src');
+        profileAvatar.style.display = 'none';
+        profileInitial.style.display = 'inline-flex';
+    }
+
+    const statusLabel = document.getElementById('profileBadgePrimary');
+    const statusDetail = document.getElementById('accountStatusDetail');
+    const adminLink = document.getElementById('adminLink');
+
+    if (resolved.isAdmin) {
+        statusLabel.textContent = 'Admin account';
+        statusDetail.textContent = 'You can manage seller verification requests from the admin panel.';
+        adminLink.style.display = 'flex';
+    } else if (resolved.canSell) {
+        statusLabel.textContent = 'Verified seller';
+        statusDetail.textContent = 'Your account is approved and you can post listings.';
+    } else if (resolved.accountStatus === 'rejected') {
+        statusLabel.textContent = 'Verification needs attention';
+        statusDetail.textContent = 'Your account was not approved. Contact the admin for help.';
+    } else {
+        statusLabel.textContent = 'Awaiting verification';
+        statusDetail.textContent = 'An admin must verify your account before you can sell items.';
+    }
+}
+
+if (!user) {
+    window.location.href = 'login.html';
+} else {
+    renderProfile(user);
+
+    pictureInput.addEventListener('change', async (event) => {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        pictureStatus.textContent = 'Uploading picture...';
+        const reader = new FileReader();
+        reader.onload = async () => {
+            try {
+                const data = await Api.uploadProfilePicture({ image: reader.result });
+                const updatedUser = data.user || { ...cmGetUser(), avatarUrl: data.user?.avatarUrl };
+                localStorage.setItem('cm_user', JSON.stringify(updatedUser));
+                renderProfile(updatedUser);
+                pictureStatus.textContent = 'Picture updated.';
+            } catch (err) {
+                pictureStatus.textContent = err.message || 'Could not upload picture.';
+            }
+        };
+        reader.readAsDataURL(file);
+    });
+
+}
+function handleLogoutClick(e) {
+    e.preventDefault();
+    cmLogout();
+    window.location.href = 'login.html';
+}
+document.getElementById('logoutLink').addEventListener('click', handleLogoutClick);
+document.getElementById('logoutMenuLink').addEventListener('click', handleLogoutClick);
+</script>
+</body>
+</html>

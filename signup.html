@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign Up — Campus Market</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="auth-page">
+    <div class="auth-brand">
+        <div class="mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6.5C10.5 5.2 8 4.5 5.5 4.5c-.6 0-1 .4-1 1v11c0 .6.4 1 1 1 2.2 0 4.6.6 6 1.8 1.4-1.2 3.8-1.8 6-1.8.6 0 1-.4 1-1v-11c0-.6-.4-1-1-1-2.5 0-5 .7-6.5 2z"/></svg>
+        </div>
+        <h1>Campus Market</h1>
+        <p>Join your campus marketplace in seconds</p>
+    </div>
+
+    <div class="auth-card">
+        <h2>Create your account</h2>
+        <form id="signupForm">
+            <div class="field">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" placeholder="e.g. Yaw Asare" required>
+            </div>
+            <div class="field">
+                <label for="studentId">Student ID</label>
+                <input type="text" id="studentId" placeholder="e.g. UEB1234567" minlength="10" maxlength="10" pattern="UEB[0-9]{7}" title="UEB followed by 7 digits" required>
+            </div>
+            <div class="field">
+                <label for="suEmail">Gmail Address</label>
+                <input type="email" id="suEmail" placeholder="your.email@gmail.com" required>
+            </div>
+            <div class="field">
+                <label for="suPassword">Password</label>
+                <input type="password" id="suPassword" placeholder="••••••••" required>
+            </div>
+            <div class="field">
+                <label for="suConfirm">Confirm Password</label>
+                <input type="password" id="suConfirm" placeholder="••••••••" required>
+            </div>
+            <div class="field-row">
+                <label><input type="checkbox" required> I agree to the Terms &amp; Privacy Policy</label>
+            </div>
+            <button type="submit" class="btn btn-indigo btn-block">Create Account</button>
+        </form>
+        <p class="auth-foot">Already have an account? <a href="login.html">Sign In</a></p>
+    </div>
+
+    <div class="stat-strip">
+        <div class="stat-chip"><strong>50%</strong><span>Lower Prices</span></div>
+        <div class="stat-chip"><strong>100+</strong><span>Active Listings</span></div>
+        <div class="stat-chip"><strong>Safe</strong><span>Student Only</span></div>
+    </div>
+</div>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/products.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+document.getElementById('signupForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const studentId = document.getElementById('studentId').value.trim();
+    const pw = document.getElementById('suPassword').value;
+    const confirm = document.getElementById('suConfirm').value;
+    const name = document.getElementById('name').value.trim() || 'New Student';
+    const email = document.getElementById('suEmail').value.trim();
+
+    const studentIdPattern = /^UEB\d{7}$/i;
+    if (!studentId) {
+        cmToast('Please enter your student ID.');
+        return;
+    }
+    if (!studentIdPattern.test(studentId)) {
+        cmToast('Student ID must be 10 characters and start with UEB followed by 7 digits.');
+        return;
+    }
+    const normalizedStudentId = studentId.toUpperCase();
+    if (!name) {
+        cmToast('Please enter your full name.');
+        return;
+    }
+    if (pw.length < 6) {
+        cmToast('Password must be at least 6 characters.');
+        return;
+    }
+    if (pw !== confirm) {
+        cmToast("Passwords don't match.");
+        return;
+    }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        cmToast('Please use a valid email address.');
+        return;
+    }
+
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.textContent = 'Creating account…';
+
+    try {
+        await Api.signup({ name, email, studentId: normalizedStudentId, password: pw });
+        cmToast('Account created! Please sign in with your new credentials.');
+        setTimeout(() => { window.location.href = 'login.html'; }, 450);
+    } catch (err) {
+        cmHandleApiError(err, 'Could not create your account.');
+        btn.disabled = false;
+        btn.textContent = 'Create Account';
+    }
+});
+</script>
+</body>
+</html>

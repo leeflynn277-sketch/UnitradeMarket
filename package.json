@@ -1,0 +1,16 @@
+{
+  "name": "campus-market",
+  "version": "1.0.0",
+  "description": "Campus Market — a student-to-student marketplace with a real Node.js + SQLite backend (no external dependencies required).",
+  "private": true,
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node --watch server/server.js",
+    "test": "node --test tests/smoke.test.js"
+  },
+  "dependencies": {}
+}

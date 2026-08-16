@@ -1,0 +1,10 @@
+[build]
+  builder = "NIXPACKS"
+
+[deploy]
+  startCommand = "npm start"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "3000"
+  CAMPUS_MARKET_DATA_DIR = "/data"

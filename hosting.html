@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hosting — Campus Market</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="shell-page">
+<div class="shell">
+    <header class="shell-topbar">
+        <button class="icon-btn" onclick="cmGoBack('index.html')" aria-label="Back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <h1>Hosting & Deploy</h1>
+        <span style="width:2.25rem;"></span>
+    </header>
+
+    <div class="shell-body">
+        <div class="profile-card" style="margin-bottom:1rem;">
+            <div class="avatar">H</div>
+            <div>
+                <strong>Launch Campus Market online</strong>
+                <span>Deploy this app as a production web service with persistent storage.</span>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <div class="label-row">
+                <span class="heading">Recommended platform</span>
+            </div>
+            <p style="margin:0; color:var(--muted); line-height:1.6;">Render is a straightforward choice for this Node.js app. The included deployment template wires up the build command, start command, and persistent storage.</p>
+        </div>
+
+        <div class="info-card">
+            <div class="label-row">
+                <span class="heading">Deploy steps</span>
+            </div>
+            <ol style="margin:.2rem 0 0 1rem; color:var(--muted); line-height:1.7;">
+                <li>Connect this repository to Render or any Node.js host.</li>
+                <li>Use <strong>npm start</strong> as the start command.</li>
+                <li>Set <strong>CAMPUS_MARKET_DATA_DIR</strong> to a persistent writable directory.</li>
+                <li>Create an admin account with the setup script after deployment.</li>
+            </ol>
+        </div>
+
+        <div class="info-card">
+            <div class="label-row">
+                <span class="heading">Quick commands</span>
+            </div>
+            <pre style="margin:0; white-space:pre-wrap; word-break:break-word; font-size:.82rem; color:var(--text);">npm start
+node server/setup-admin.js admin@yourdomain.com StrongPassword123 "Campus Admin"</pre>
+        </div>
+
+        <div style="display:flex; gap:.6rem; flex-wrap:wrap; margin-top:.4rem;">
+            <a class="btn btn-indigo" href="admin-login.html?returnTo=admin.html">Open Admin Dashboard</a>
+            <a class="btn btn-outline" href="README.md">Read deployment guide</a>
+        </div>
+    </div>
+</div>
+</div>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

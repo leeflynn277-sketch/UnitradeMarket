@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Console — Campus Market</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="admin-view">
+<div class="shell-page">
+<div class="shell">
+    <header class="shell-topbar admin-topbar">
+        <div class="admin-brand">
+            <span class="admin-brand-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 3v6c0 5-3.4 8.4-7 9-3.6-.6-7-4-7-9V6l7-3z"/></svg>
+            </span>
+            <div>
+                <h1>Admin Console</h1>
+                <span class="topbar-sub">Campus Market oversight</span>
+            </div>
+        </div>
+        <div class="admin-topbar-actions">
+            <a class="btn btn-sm btn-outline" href="index.html">View site</a>
+            <button type="button" class="btn btn-sm btn-indigo" id="adminLogoutBtn">Log out</button>
+        </div>
+    </header>
+
+    <div class="shell-body">
+        <div class="admin-dashboard">
+            <section class="admin-hero">
+                <div class="admin-hero-top">
+                    <div class="avatar" id="adminInitial">A</div>
+                    <div class="admin-hero-copy">
+                        <p class="section-label admin-section-label">Operations center</p>
+                        <h2 id="adminWelcome">Welcome back, overseer</h2>
+                        <p>Approve new sellers, moderate listings, and keep the marketplace trustworthy — you have full visibility no user account gets.</p>
+                    </div>
+                </div>
+                <div class="admin-hero-actions">
+                    <button type="button" class="btn btn-indigo" data-goto-tab="users">Review accounts</button>
+                    <a class="btn btn-outline" href="messages.html">Open inbox</a>
+                </div>
+            </section>
+
+            <nav class="admin-tabs" id="adminTabs">
+                <button type="button" class="admin-tab is-active" data-tab="overview">Overview</button>
+                <button type="button" class="admin-tab" data-tab="users">Users</button>
+                <button type="button" class="admin-tab" data-tab="listings">Listings</button>
+                <button type="button" class="admin-tab" data-tab="reports">Reports</button>
+                <button type="button" class="admin-tab" data-tab="settings">Settings</button>
+            </nav>
+
+            <section class="admin-tab-panel" data-panel="overview">
+                <section class="dashboard-grid">
+                    <div class="dashboard-panel">
+                        <div class="panel-heading">
+                            <div>
+                                <p class="section-label">Live snapshot</p>
+                                <h3>Marketplace pulse</h3>
+                            </div>
+                            <span class="panel-pill">Live</span>
+                        </div>
+                        <div id="adminStats" class="stats-grid"></div>
+                    </div>
+
+                    <div class="dashboard-panel">
+                        <div class="panel-heading">
+                            <div>
+                                <p class="section-label">Quick actions</p>
+                                <h3>Stay ahead</h3>
+                            </div>
+                        </div>
+                        <div class="quick-actions">
+                            <a class="action-item" href="browse.html">
+                                <span>Browse listings</span>
+                                <strong>Check the latest posts</strong>
+                            </a>
+                            <a class="action-item" href="messages.html">
+                                <span>Messages</span>
+                                <strong>Respond to student activity</strong>
+                            </a>
+                            <a class="action-item" href="hosting.html">
+                                <span>Deploy</span>
+                                <strong>Ship improvements</strong>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+            </section>
+
+            <section class="admin-tab-panel" data-panel="users" style="display:none;">
+                <div class="panel-heading" style="margin-bottom:.6rem;">
+                    <div>
+                        <p class="section-label" style="margin:0 0 .2rem;">Account oversight</p>
+                        <h3 style="margin:0;">All accounts</h3>
+                    </div>
+                </div>
+                <div class="admin-filter-row" id="userFilters">
+                    <button type="button" class="admin-filter-chip is-active" data-filter="all">All</button>
+                    <button type="button" class="admin-filter-chip" data-filter="pending">Pending</button>
+                    <button type="button" class="admin-filter-chip" data-filter="approved">Approved</button>
+                    <button type="button" class="admin-filter-chip" data-filter="suspended">Suspended</button>
+                    <button type="button" class="admin-filter-chip" data-filter="rejected">Rejected</button>
+                </div>
+                <div id="adminUsers" class="review-list"></div>
+            </section>
+
+            <section class="admin-tab-panel" data-panel="listings" style="display:none;">
+                <div class="panel-heading" style="margin-bottom:.6rem;">
+                    <div>
+                        <p class="section-label" style="margin:0 0 .2rem;">Listings oversight</p>
+                        <h3 style="margin:0;">Every listing on the marketplace</h3>
+                    </div>
+                </div>
+                <div id="adminProducts" class="review-list"></div>
+            </section>
+
+            <section class="admin-tab-panel" data-panel="reports" style="display:none;">
+                <div class="panel-heading" style="margin-bottom:.6rem;">
+                    <div>
+                        <p class="section-label" style="margin:0 0 .2rem;">Trust & safety</p>
+                        <h3 style="margin:0;">Reported listings</h3>
+                    </div>
+                </div>
+                <div id="adminReports" class="review-list"></div>
+            </section>
+
+            <section class="admin-tab-panel" data-panel="settings" style="display:none;">
+                <div class="panel-heading" style="margin-bottom:.6rem;">
+                    <div>
+                        <p class="section-label" style="margin:0 0 .2rem;">Marketplace rules</p>
+                        <h3 style="margin:0;">Discount cap</h3>
+                    </div>
+                </div>
+                <div class="dashboard-panel">
+                    <p class="help-text" style="margin-bottom:1rem;">
+                        Sellers can mark an item as discounted from an original price. This sets the floor —
+                        the sale price can never be discounted below this percentage of the original price.
+                    </p>
+                    <div class="field">
+                        <label for="minSalePercentInput">Minimum sale price (% of original)</label>
+                        <input type="number" id="minSalePercentInput" min="1" max="100" step="1">
+                        <span class="help-text" id="settingsCurrentValue"></span>
+                    </div>
+                    <button type="button" class="btn btn-indigo" id="saveSettingsBtn" style="margin-top:.6rem;">Save</button>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+</div>
+
+<div id="userDetailOverlay" class="admin-modal-overlay" style="display:none;">
+    <div class="admin-modal">
+        <div class="admin-modal-head">
+            <h3>Account details</h3>
+            <button type="button" class="icon-btn" id="closeUserDetail" aria-label="Close">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div id="userDetailBody" class="admin-modal-body"></div>
+    </div>
+</div>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+const PRODUCT_STATUS_LABELS = {
+    active: 'Active', sold: 'Sold', claimed: 'Claimed', removed: 'Removed', rejected: 'Removed', closed: 'Closed',
+};
+function productStatusClass(status) {
+    if (status === 'active') return 'is-approved';
+    if (status === 'sold' || status === 'claimed') return 'is-pending';
+    return 'is-rejected';
+}
+
+(async () => {
+    const user = cmGetUser();
+    if (!user) {
+        window.location.href = 'admin-login.html?returnTo=admin.html';
+        return;
+    }
+
+    if (!user.isAdmin) {
+        cmToast('Only admins can access this page.');
+        setTimeout(() => window.location.href = 'profile.html', 500);
+        return;
+    }
+
+    document.getElementById('adminInitial').textContent = (user.name || 'A').charAt(0).toUpperCase();
+    document.getElementById('adminWelcome').textContent = `Welcome back, ${(user.name || 'Admin').split(' ')[0]}`;
+
+    document.getElementById('adminLogoutBtn').addEventListener('click', () => {
+        cmLogout();
+        window.location.href = 'admin-login.html';
+    });
+
+    /* ---------- Tabs ---------- */
+    const tabs = document.querySelectorAll('.admin-tab');
+    const panels = document.querySelectorAll('.admin-tab-panel');
+    function activateTab(name) {
+        tabs.forEach((t) => t.classList.toggle('is-active', t.dataset.tab === name));
+        panels.forEach((p) => { p.style.display = p.dataset.panel === name ? 'grid' : 'none'; });
+    }
+    tabs.forEach((t) => t.addEventListener('click', () => activateTab(t.dataset.tab)));
+    document.querySelectorAll('[data-goto-tab]').forEach((el) => {
+        el.addEventListener('click', () => activateTab(el.getAttribute('data-goto-tab')));
+    });
+
+    const statsContainer = document.getElementById('adminStats');
+    const usersContainer = document.getElementById('adminUsers');
+    const productsContainer = document.getElementById('adminProducts');
+    const reportsContainer = document.getElementById('adminReports');
+
+    let allUsers = [];
+    let activeUserFilter = 'all';
+
+    function renderUsers() {
+        const filtered = activeUserFilter === 'all'
+            ? allUsers
+            : allUsers.filter((u) => u.account_status === activeUserFilter);
+
+        if (!filtered.length) {
+            usersContainer.innerHTML = '<div class="empty-state">No accounts match this filter.</div>';
+            return;
+        }
+
+        usersContainer.innerHTML = filtered.map((u) => {
+            const status = u.account_status;
+            let actionsHtml = '';
+            if (status === 'pending') {
+                actionsHtml = `
+                    <button class="btn btn-orange" data-action="approve" data-id="${u.id}">Approve</button>
+                    <button class="btn btn-outline" data-action="reject" data-id="${u.id}">Reject</button>`;
+            } else if (status === 'approved') {
+                actionsHtml = `<button class="btn btn-danger" data-action="suspend" data-id="${u.id}">Suspend</button>`;
+            } else if (status === 'suspended') {
+                actionsHtml = `<button class="btn btn-orange" data-action="reinstate" data-id="${u.id}">Reinstate</button>`;
+            } else if (status === 'rejected') {
+                actionsHtml = `<button class="btn btn-orange" data-action="approve" data-id="${u.id}">Approve</button>`;
+            }
+
+            return `
+            <div class="review-card">
+                <div class="review-top" data-view-user="${u.id}" style="cursor:pointer;">
+                    <div>
+                        <strong>${u.name}</strong>
+                        <div class="help-text">${u.email}</div>
+                        <div class="help-text">Student ID: ${u.student_id || '—'}</div>
+                    </div>
+                    <span class="status-pill ${status === 'approved' ? 'is-approved' : status === 'rejected' ? 'is-rejected' : status === 'suspended' ? 'is-suspended' : 'is-pending'}">${status}</span>
+                </div>
+                ${u.verification_photo ? `
+                <div class="review-proof">
+                    <div class="help-text" style="margin-bottom:.4rem;">Verification proof</div>
+                    <img src="${Api.resolveAssetUrl(u.verification_photo)}" alt="Verification proof for ${u.name}" class="review-proof-image">
+                </div>
+                ` : ''}
+                <div class="review-actions">
+                    <button class="btn btn-outline btn-sm" data-view-user="${u.id}">View full details</button>
+                </div>
+                ${actionsHtml ? `<div class="review-actions">${actionsHtml}</div>` : ''}
+                ${actionsHtml ? `
+                <div class="review-note">
+                    <input type="text" data-note="${u.id}" placeholder="Optional note">
+                </div>` : ''}
+            </div>
+        `;
+        }).join('');
+
+        usersContainer.querySelectorAll('[data-view-user]').forEach((el) => {
+            el.addEventListener('click', () => openUserDetail(el.getAttribute('data-view-user')));
+        });
+
+        usersContainer.querySelectorAll('button[data-action]').forEach((btn) => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const id = btn.getAttribute('data-id');
+                const action = btn.getAttribute('data-action');
+                const noteInput = usersContainer.querySelector(`[data-note="${id}"]`);
+                const note = noteInput ? noteInput.value : '';
+
+                if (action === 'suspend' && !window.confirm('Suspend this account? They will not be able to sign in until reinstated.')) {
+                    return;
+                }
+
+                try {
+                    if (action === 'approve') await Api.approveUser(id, note);
+                    else if (action === 'reject') await Api.rejectUser(id, note);
+                    else if (action === 'suspend') await Api.suspendUser(id, note);
+                    else if (action === 'reinstate') await Api.reinstateUser(id, note);
+                    cmToast('Account updated.');
+                    location.reload();
+                } catch (err) {
+                    cmHandleApiError(err, 'Could not update account.');
+                }
+            });
+        });
+    }
+
+    /* ---------- User detail modal ---------- */
+    const userDetailOverlay = document.getElementById('userDetailOverlay');
+    const userDetailBody = document.getElementById('userDetailBody');
+
+    async function openUserDetail(id) {
+        userDetailOverlay.style.display = 'flex';
+        userDetailBody.innerHTML = '<p class="help-text">Loading…</p>';
+        try {
+            const { user, stats, listings } = await Api.getAdminUserDetail(id);
+            userDetailBody.innerHTML = `
+                <div class="admin-detail-row"><span>Name</span><strong>${user.name}</strong></div>
+                <div class="admin-detail-row"><span>Email</span><strong>${user.email}</strong></div>
+                <div class="admin-detail-row"><span>Student ID</span><strong>${user.student_id || '—'}</strong></div>
+                <div class="admin-detail-row"><span>Role</span><strong>${user.role}</strong></div>
+                <div class="admin-detail-row"><span>Account status</span><strong class="status-pill ${user.account_status === 'approved' ? 'is-approved' : user.account_status === 'rejected' ? 'is-rejected' : user.account_status === 'suspended' ? 'is-suspended' : 'is-pending'}">${user.account_status}</strong></div>
+                <div class="admin-detail-row"><span>Can sell</span><strong>${user.can_sell ? 'Yes' : 'No'}</strong></div>
+                <div class="admin-detail-row"><span>Verified at</span><strong>${user.verified_at || '—'}</strong></div>
+                <div class="admin-detail-row"><span>Joined</span><strong>${user.created_at}</strong></div>
+                ${user.admin_note ? `<div class="admin-detail-row"><span>Admin note</span><strong>${user.admin_note}</strong></div>` : ''}
+                ${user.verification_photo ? `
+                <div style="margin:.8rem 0;">
+                    <div class="help-text" style="margin-bottom:.4rem;">Verification proof</div>
+                    <img src="${Api.resolveAssetUrl(user.verification_photo)}" alt="Verification proof" class="review-proof-image">
+                </div>` : ''}
+                <div class="admin-detail-stats">
+                    <div><strong>${stats.listingsCount}</strong><span>Listings posted</span></div>
+                    <div><strong>${stats.activeListingsCount}</strong><span>Active now</span></div>
+                    <div><strong>${stats.ordersPlacedCount}</strong><span>Orders placed</span></div>
+                </div>
+                ${listings.length ? `
+                <div class="section-label" style="margin-top:1rem;">Recent listings</div>
+                <div class="admin-detail-listings">
+                    ${listings.map((l) => `
+                        <a href="product.html?id=${l.id}" class="admin-detail-listing-row">
+                            <span>${l.title}</span>
+                            <span class="status-pill ${productStatusClass(l.status)}">${PRODUCT_STATUS_LABELS[l.status] || l.status}</span>
+                        </a>
+                    `).join('')}
+                </div>` : ''}
+            `;
+        } catch (err) {
+            userDetailBody.innerHTML = '<p class="help-text">Could not load account details.</p>';
+        }
+    }
+
+    document.getElementById('closeUserDetail').addEventListener('click', () => {
+        userDetailOverlay.style.display = 'none';
+    });
+    userDetailOverlay.addEventListener('click', (e) => {
+        if (e.target === userDetailOverlay) userDetailOverlay.style.display = 'none';
+    });
+
+    document.getElementById('userFilters').addEventListener('click', (e) => {
+        const chip = e.target.closest('[data-filter]');
+        if (!chip) return;
+        activeUserFilter = chip.getAttribute('data-filter');
+        document.querySelectorAll('.admin-filter-chip').forEach((c) => c.classList.toggle('is-active', c === chip));
+        renderUsers();
+    });
+
+    function renderProducts(products) {
+        if (!products.length) {
+            productsContainer.innerHTML = '<div class="empty-state">No listings yet.</div>';
+            return;
+        }
+
+        productsContainer.innerHTML = products.map((p) => `
+            <div class="review-card">
+                <div class="review-top">
+                    <div>
+                        <strong>${p.title}</strong>
+                        <div class="help-text">Seller: ${p.seller_name} · GH₵${Number(p.price).toFixed(2)}</div>
+                        <div class="help-text">${p.category} · ${p.views_count || 0} views</div>
+                    </div>
+                    <span class="status-pill ${productStatusClass(p.status)}">${PRODUCT_STATUS_LABELS[p.status] || p.status}</span>
+                </div>
+                <div class="review-actions">
+                    ${p.status === 'active'
+                        ? `<button class="btn btn-danger" data-product-action="remove" data-product-id="${p.id}">Remove listing</button>`
+                        : `<button class="btn btn-orange" data-product-action="restore" data-product-id="${p.id}">Restore listing</button>`}
+                    <a class="btn btn-outline" href="product.html?id=${p.id}">View</a>
+                </div>
+            </div>
+        `).join('');
+
+        productsContainer.querySelectorAll('button[data-product-action]').forEach((btn) => {
+            btn.addEventListener('click', async () => {
+                const id = btn.getAttribute('data-product-id');
+                const action = btn.getAttribute('data-product-action');
+                if (action === 'remove' && !window.confirm('Remove this listing from the marketplace?')) return;
+                try {
+                    if (action === 'remove') await Api.adminRemoveProduct(id);
+                    else await Api.adminRestoreProduct(id);
+                    cmToast('Listing updated.');
+                    location.reload();
+                } catch (err) {
+                    cmHandleApiError(err, 'Could not update listing.');
+                }
+            });
+        });
+    }
+
+    try {
+        const [{ stats, recentUsers, recentListings }, { users }, { reports }, { products }] = await Promise.all([
+            Api.getAdminStats(), Api.getAdminUsers(), Api.getAdminReports(), Api.getAdminProducts(),
+        ]);
+
+        statsContainer.innerHTML = `
+            <div class="stat-card users">
+                <span class="stat-label">Users</span>
+                <strong class="stat-value">${stats.totalUsers}</strong>
+            </div>
+            <div class="stat-card pending">
+                <span class="stat-label">Pending</span>
+                <strong class="stat-value">${stats.pendingApprovals}</strong>
+            </div>
+            <div class="stat-card suspended">
+                <span class="stat-label">Suspended</span>
+                <strong class="stat-value">${stats.suspendedUsers}</strong>
+            </div>
+            <div class="stat-card listings">
+                <span class="stat-label">Active listings</span>
+                <strong class="stat-value">${stats.activeListings}</strong>
+            </div>
+            <div class="stat-card orders">
+                <span class="stat-label">Orders</span>
+                <strong class="stat-value">${stats.totalOrders}</strong>
+            </div>
+            <div class="summary-card">
+                <div class="summary-title">Live moderation summary</div>
+                <div class="summary-list">
+                    <div>• ${recentUsers.length ? recentUsers[0].name + ' joined and is waiting for review.' : 'No new users yet.'}</div>
+                    <div>• ${recentListings.length ? recentListings[0].title + ' is now live in the marketplace.' : 'No recent listings.'}</div>
+                    <div>• Review pending approvals and keep seller accounts compliant with campus marketplace rules.</div>
+                </div>
+            </div>
+        `;
+
+        if (!reports.length) {
+            reportsContainer.innerHTML = '<div class="empty-state">No reports right now — the marketplace looks clean.</div>';
+        } else {
+            reportsContainer.innerHTML = reports.map((r) => `
+                <div class="review-card">
+                    <div class="review-top">
+                        <div>
+                            <strong>${r.product_title}</strong>
+                            <div class="help-text">Reported by ${r.reporter_name} · Seller: ${r.seller_name}</div>
+                            <div class="help-text">Reason: ${r.reason.replace(/-/g, ' ')}${r.details ? ' — ' + r.details : ''}</div>
+                        </div>
+                        <span class="status-pill ${r.status === 'open' ? 'is-pending' : 'is-approved'}">${r.status}</span>
+                    </div>
+                    ${r.status === 'open' ? `
+                    <div class="review-actions">
+                        <button class="btn btn-danger" data-report-action="remove-listing" data-report-id="${r.id}">Remove listing</button>
+                        <button class="btn btn-outline" data-report-action="dismiss" data-report-id="${r.id}">Dismiss</button>
+                    </div>` : `<div class="help-text">Resolved${r.admin_note ? ': ' + r.admin_note : ''}</div>`}
+                </div>
+            `).join('');
+
+            reportsContainer.querySelectorAll('button[data-report-action]').forEach((btn) => {
+                btn.addEventListener('click', async () => {
+                    const id = btn.getAttribute('data-report-id');
+                    const action = btn.getAttribute('data-report-action');
+                    try {
+                        await Api.resolveReport(id, action, '');
+                        cmToast(action === 'remove-listing' ? 'Listing removed.' : 'Report dismissed.');
+                        location.reload();
+                    } catch (err) {
+                        cmHandleApiError(err, 'Could not update report.');
+                    }
+                });
+            });
+        }
+
+        allUsers = users;
+        if (!users.length) {
+            usersContainer.innerHTML = '<div class="empty-state">No accounts to review yet.</div>';
+        } else {
+            renderUsers();
+        }
+
+        renderProducts(products);
+    } catch (err) {
+        cmHandleApiError(err, 'Could not load admin panel.');
+    }
+
+    /* ---------- Settings (discount cap) ---------- */
+    const minSalePercentInput = document.getElementById('minSalePercentInput');
+    const settingsCurrentValue = document.getElementById('settingsCurrentValue');
+    try {
+        const { settings } = await Api.getAdminSettings();
+        minSalePercentInput.value = settings.minSalePercent;
+        settingsCurrentValue.textContent = `Currently: sellers can't discount below ${settings.minSalePercent}% of the original price.`;
+    } catch (err) {
+        settingsCurrentValue.textContent = 'Could not load current settings.';
+    }
+
+    document.getElementById('saveSettingsBtn').addEventListener('click', async () => {
+        const value = Number(minSalePercentInput.value);
+        if (!Number.isFinite(value) || value < 1 || value > 100) {
+            cmToast('Enter a percentage between 1 and 100.');
+            return;
+        }
+        try {
+            const { settings } = await Api.updateAdminSettings(value);
+            settingsCurrentValue.textContent = `Currently: sellers can't discount below ${settings.minSalePercent}% of the original price.`;
+            cmToast('Settings saved.');
+        } catch (err) {
+            cmHandleApiError(err, 'Could not save settings.');
+        }
+    });
+})();
+</script>
+</body>
+</html>

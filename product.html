@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product — Campus Market</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="product-view">
+<div class="shell-page product-shell">
+<div class="shell product-shell-inner">
+    <header class="shell-topbar">
+        <button class="icon-btn" onclick="cmGoBack('browse.html')" aria-label="Back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <h1 id="topTitle">Product</h1>
+        <span style="width:2.25rem;"></span>
+    </header>
+
+    <div class="shell-body" id="productBody">
+        <p style="color:var(--muted);">Loading…</p>
+    </div>
+
+    <div class="image-lightbox" id="imageLightbox" aria-hidden="true">
+        <div class="image-lightbox-backdrop" id="imageLightboxBackdrop"></div>
+        <div class="image-lightbox-content">
+            <button class="image-lightbox-close" id="imageLightboxClose" aria-label="Close image view">×</button>
+            <img id="lightboxImg" src="" alt="Product image">
+        </div>
+    </div>
+
+    <div class="simple-modal" id="reportModal" aria-hidden="true">
+        <div class="simple-modal-backdrop" id="reportModalBackdrop"></div>
+        <div class="simple-modal-card">
+            <h3>Report this listing</h3>
+            <div class="report-reason-list" id="reportReasonList">
+                <label><input type="radio" name="reportReason" value="scam" checked> Scam</label>
+                <label><input type="radio" name="reportReason" value="fake"> Fake product</label>
+                <label><input type="radio" name="reportReason" value="wrong-category"> Wrong category</label>
+                <label><input type="radio" name="reportReason" value="offensive"> Offensive content</label>
+                <label><input type="radio" name="reportReason" value="duplicate"> Duplicate listing</label>
+                <label><input type="radio" name="reportReason" value="suspicious-seller"> Suspicious seller</label>
+                <label><input type="radio" name="reportReason" value="prohibited"> Prohibited item</label>
+                <label><input type="radio" name="reportReason" value="other"> Other</label>
+            </div>
+            <textarea id="reportDetails" placeholder="Add any extra detail (optional)"></textarea>
+            <div class="simple-modal-actions">
+                <button type="button" class="btn btn-outline" id="reportCancelBtn">Cancel</button>
+                <button type="button" class="btn btn-indigo" id="reportSubmitBtn">Submit report</button>
+            </div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="index.html" data-nav-page="index.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/></svg>
+            Home
+        </a>
+        <a href="cart.html" data-nav-page="cart.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/><path d="M3 4h2l2.4 12h11.2L21 7H6"/></svg>
+            Cart
+        </a>
+        <a href="alerts.html" data-nav-page="alerts.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22a2.5 2.5 0 002.45-2h-4.9A2.5 2.5 0 0012 22zm6-6V11a6 6 0 10-12 0v5l-2 2v1h16v-1l-2-2z"/></svg>
+            Alerts
+        </a>
+        <a href="profile.html" data-nav-page="profile.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6"/></svg>
+            Profile
+        </a>
+    </nav>
+</div>
+</div>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/products.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+const productId = cmParam('id') || '9';
+let product = null;
+let qty = 1;
+let selectedSize = null;
+let selectedColor = null;
+
+async function loadProduct() {
+    try {
+        const data = await Api.getProduct(productId);
+        product = data.product;
+        selectedSize = product.defaultSize || null;
+        selectedColor = product.defaultColor || null;
+    } catch (err) {
+        product = null;
+    }
+    renderProduct();
+    cmRenderCartBadges();
+}
+
+function renderProduct() {
+    if (!product) {
+        document.getElementById('topTitle').textContent = 'Product';
+        document.getElementById('productBody').innerHTML = '<div class="empty-state"><p>Item not found. <a href="browse.html">Go back to All Deals</a></p></div>';
+        return;
+    }
+
+    document.getElementById('topTitle').textContent = product.title;
+    const isFree = !product.price || product.price <= 0;
+    const isMine = !!product.isMine;
+    const isSold = product.status !== 'active';
+
+    const normalizeImageUrl = (src) => Api.resolveAssetUrl(src);
+    const gallery = (product.gallery || []).map(normalizeImageUrl);
+
+    document.getElementById('productBody').innerHTML = `
+        <div class="product-detail">
+            <div class="gallery-main"><img id="mainImg" src="${gallery[0] || ''}" alt="${product.title}"></div>
+            ${gallery.length > 1 ? `
+            <div class="gallery-thumbs">
+                ${gallery.map((src, i) => `<div class="thumb ${i === 0 ? 'is-active' : ''}" data-src="${src}"><img src="${src}" alt="thumb ${i + 1}"></div>`).join('')}
+            </div>` : ''}
+
+            <div class="pd-title-row">
+                <h1>${product.title}</h1>
+                ${isMine ? '' : `
+                <button class="fav-btn" id="favBtn" aria-label="Save">
+                    <svg viewBox="0 0 24 24" fill="${product.isFavorited ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M12 17.3l-6.2 3.7 1.6-7-5.4-4.7 7.1-.6L12 2l2.9 6.7 7.1.6-5.4 4.7 1.6 7z"/></svg>
+                </button>`}
+            </div>
+            <div class="pd-price ${isFree ? 'free' : ''}">
+                ${cmFormatPrice(product.price)}
+                ${product.originalPrice ? `<span style="font-size:.8rem;font-weight:600;color:var(--muted);text-decoration:line-through;margin-left:.5rem;">GH₵${Number(product.originalPrice).toFixed(2)}</span>
+                <span style="display:inline-block;background:#fee2e2;color:#991b1b;font-size:.72rem;font-weight:800;padding:.15rem .5rem;border-radius:999px;margin-left:.4rem;vertical-align:middle;">${product.discountPercent}% OFF</span>` : ''}
+            </div>
+            ${isSold ? `<p style="display:inline-block;background:var(--border);color:var(--muted);font-size:.75rem;font-weight:700;padding:.2rem .6rem;border-radius:999px;margin-bottom:.6rem;">${product.status === 'sold' ? 'SOLD' : 'CLAIMED'}</p>` : ''}
+            <p class="pd-desc">${product.description}</p>
+
+            <div class="seller-row">
+                <div class="avatar">${cmInitials(product.seller.name)}</div>
+                <div class="who">
+                    <strong>${product.seller.name}</strong>
+                    <span><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><path d="M12 22s7-7.5 7-12a7 7 0 10-14 0c0 4.5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg> ${product.location}</span>
+                    ${product.sellerContact ? `<span class="seller-contact"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 2 .7 3a2 2 0 01-.5 2.1L8 10a16 16 0 006 6l1.2-1.3a2 2 0 012.1-.5c1 .3 2 .5 3 .7a2 2 0 011.7 2z"/></svg> ${product.sellerContact}</span>` : ''}
+                </div>
+                ${isMine ? '' : `
+                <div class="seller-actions">
+                    <a href="#" id="chatBtn" aria-label="Chat seller">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                    </a>
+                    <a href="#" id="callBtn" aria-label="Call seller">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 2 .7 3a2 2 0 01-.5 2.1L8 10a16 16 0 006 6l1.2-1.3a2 2 0 012.1-.5c1 .3 2 .5 3 .7a2 2 0 011.7 2z"/></svg>
+                    </a>
+                </div>`}
+            </div>
+            ${isMine ? '' : `<button type="button" class="link-btn" id="reportBtn" style="margin-top:.7rem;font-size:.75rem;color:var(--muted);background:none;border:none;padding:0;cursor:pointer;display:inline-flex;align-items:center;gap:.3rem;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22V15"/></svg> Report this listing</button>`}
+
+            ${product.sizes ? `
+            <span class="option-label">Select Size</span>
+            <div class="option-row" id="sizeRow">
+                ${product.sizes.map((s) => `<button type="button" class="size-chip ${s === selectedSize ? 'is-active' : ''}" data-size="${s}">${s}</button>`).join('')}
+            </div>` : ''}
+
+            ${product.colors ? `
+            <span class="option-label">Select Color</span>
+            <div class="option-row" id="colorRow">
+                ${product.colors.map((c) => `<span class="color-dot ${c === selectedColor ? 'is-active' : ''}" style="background:${c}" data-color="${c}"></span>`).join('')}
+            </div>` : ''}
+
+            <div class="qty-buy-row" style="margin-top:1.2rem;">
+                ${isMine ? `
+                <a href="sell.html?edit=${product.id}" class="btn btn-outline btn-block" style="display:inline-flex;align-items:center;justify-content:center;gap:.4rem;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg> Edit this listing</a>
+                <button type="button" class="btn btn-outline btn-block" id="deleteBtn" style="display:inline-flex;align-items:center;justify-content:center;gap:.4rem;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg> Remove this listing</button>
+                ` : isSold ? `
+                <button type="button" class="btn btn-block" disabled style="opacity:.6;">${product.status === 'sold' ? 'Already sold' : 'Already claimed'}</button>
+                ` : `
+                ${isFree ? '' : `
+                <div class="qty-stepper">
+                    <button type="button" id="qtyMinus">–</button>
+                    <span id="qtyVal">${qty}</span>
+                    <button type="button" id="qtyPlus">+</button>
+                </div>`}
+                <button type="button" class="btn ${isFree ? 'btn-green' : 'btn-indigo'} btn-block" id="buyBtn">
+                    ${isFree ? 'Claim Item →' : 'Buy Now →'}
+                </button>`}
+            </div>
+        </div>
+    `;
+
+    document.querySelectorAll('.gallery-thumbs .thumb').forEach((t) => {
+        t.addEventListener('click', () => {
+            document.getElementById('mainImg').src = t.dataset.src;
+            document.querySelectorAll('.gallery-thumbs .thumb').forEach((x) => x.classList.remove('is-active'));
+            t.classList.add('is-active');
+        });
+    });
+
+    const mainImg = document.getElementById('mainImg');
+    mainImg.addEventListener('click', () => openLightbox(mainImg.src, product.title));
+    document.querySelectorAll('.gallery-thumbs .thumb img').forEach((thumbImg) => {
+        thumbImg.addEventListener('click', () => openLightbox(thumbImg.src, product.title));
+    });
+    document.getElementById('imageLightboxBackdrop').addEventListener('click', closeLightbox);
+    document.getElementById('imageLightboxClose').addEventListener('click', closeLightbox);
+
+    const favBtn = document.getElementById('favBtn');
+    if (favBtn) favBtn.addEventListener('click', async () => {
+        if (!cmRequireLogin()) return;
+        try {
+            if (product.isFavorited) {
+                await Api.unfavorite(product.id);
+                product.isFavorited = false;
+                cmToast('Removed from favorites');
+            } else {
+                await Api.favorite(product.id);
+                product.isFavorited = true;
+                cmToast('Saved to favorites');
+            }
+            renderProduct();
+        } catch (err) {
+            cmHandleApiError(err, 'Could not update favorites.');
+        }
+    });
+
+    const sizeRow = document.getElementById('sizeRow');
+    if (sizeRow) sizeRow.querySelectorAll('.size-chip').forEach((chip) => {
+        chip.addEventListener('click', () => { selectedSize = chip.dataset.size; renderProduct(); });
+    });
+
+    const colorRow = document.getElementById('colorRow');
+    if (colorRow) colorRow.querySelectorAll('.color-dot').forEach((dot) => {
+        dot.addEventListener('click', () => { selectedColor = dot.dataset.color; renderProduct(); });
+    });
+
+    const qtyMinus = document.getElementById('qtyMinus');
+    const qtyPlus = document.getElementById('qtyPlus');
+    if (qtyMinus) qtyMinus.addEventListener('click', () => { qty = Math.max(1, qty - 1); document.getElementById('qtyVal').textContent = qty; });
+    if (qtyPlus) qtyPlus.addEventListener('click', () => { qty += 1; document.getElementById('qtyVal').textContent = qty; });
+
+    const callBtn = document.getElementById('callBtn');
+    if (callBtn) callBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (!cmRequireLogin()) return;
+        if (!product.sellerContact) {
+            cmToast('Seller contact is not available for this listing.');
+            return;
+        }
+        const phoneLink = product.sellerContact.startsWith('+') ? product.sellerContact : product.sellerContact.replace(/^0/, '+233');
+        window.location.href = `tel:${phoneLink}`;
+    });
+
+    const chatBtn = document.getElementById('chatBtn');
+    if (chatBtn) chatBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        if (!cmRequireLogin()) return;
+        try {
+            const { conversationId } = await Api.startConversation({ otherUserId: product.seller.id, productId: product.id });
+            window.location.href = `messages.html?id=${conversationId}`;
+        } catch (err) {
+            cmHandleApiError(err, 'Could not start a conversation.');
+        }
+    });
+
+    const deleteBtn = document.getElementById('deleteBtn');
+    if (deleteBtn) deleteBtn.addEventListener('click', async () => {
+        if (!confirm('Remove this listing? This cannot be undone.')) return;
+        try {
+            await Api.deleteProduct(product.id);
+            cmToast('Listing removed.');
+            setTimeout(() => { window.location.href = 'dashboard.html'; }, 350);
+        } catch (err) {
+            cmHandleApiError(err, 'Could not remove listing.');
+        }
+    });
+
+    const reportBtn = document.getElementById('reportBtn');
+    if (reportBtn) reportBtn.addEventListener('click', () => {
+        if (!cmRequireLogin()) return;
+        document.getElementById('reportModal').classList.add('is-visible');
+    });
+
+    const buyBtn = document.getElementById('buyBtn');
+    if (buyBtn) buyBtn.addEventListener('click', async () => {
+        if (!cmRequireLogin()) return;
+        try {
+            await Api.addToCart({ productId: product.id, qty: isFree ? 1 : qty, size: selectedSize, color: selectedColor });
+            await cmRenderCartBadges();
+            cmToast(isFree ? 'Item claimed — review pickup details next' : 'Added to cart');
+            setTimeout(() => { window.location.href = 'checkout.html'; }, 400);
+        } catch (err) {
+            cmHandleApiError(err, 'Could not add this item to your cart.');
+        }
+    });
+}
+
+function openLightbox(src, title) {
+    const overlay = document.getElementById('imageLightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    lightboxImg.src = src;
+    lightboxImg.alt = title;
+    overlay.classList.add('is-visible');
+    overlay.setAttribute('aria-hidden', 'false');
+}
+
+function closeLightbox() {
+    const overlay = document.getElementById('imageLightbox');
+    overlay.classList.remove('is-visible');
+    overlay.setAttribute('aria-hidden', 'true');
+}
+
+function closeReportModal() {
+    document.getElementById('reportModal').classList.remove('is-visible');
+    document.getElementById('reportDetails').value = '';
+}
+document.getElementById('reportModalBackdrop').addEventListener('click', closeReportModal);
+document.getElementById('reportCancelBtn').addEventListener('click', closeReportModal);
+document.getElementById('reportSubmitBtn').addEventListener('click', async () => {
+    const reason = document.querySelector('input[name="reportReason"]:checked').value;
+    const details = document.getElementById('reportDetails').value.trim();
+    try {
+        await Api.reportProduct(product.id, reason, details);
+        cmToast('Thanks — our team will review this listing.');
+        closeReportModal();
+    } catch (err) {
+        cmHandleApiError(err, 'Could not submit your report.');
+        closeReportModal();
+    }
+});
+
+loadProduct();
+</script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Confirmed — Campus Market</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="shell-page">
+<div class="shell">
+    <header class="shell-topbar">
+        <span style="width:2.25rem;"></span>
+        <h1>Order Confirmed</h1>
+        <span style="width:2.25rem;"></span>
+    </header>
+
+    <div class="shell-body" style="display:flex; flex-direction:column; align-items:center; text-align:center; padding-top:2.5rem;">
+        <div style="width:4.5rem;height:4.5rem;border-radius:999px;background:var(--green-tint);display:flex;align-items:center;justify-content:center;margin-bottom:1.2rem;">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="var(--green-dark)" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <h2 style="margin:0 0 .4rem;">You're all set!</h2>
+        <p style="color:var(--muted);font-size:.9rem;max-width:320px;" id="summaryText">Your order has been placed.</p>
+
+        <div class="info-card" style="text-align:left; width:100%; margin-top:1.2rem;" id="orderRecap"></div>
+
+        <a href="browse.html" class="btn btn-indigo btn-block" style="margin-top:1rem;">Continue browsing</a>
+        <a href="index.html" class="btn btn-outline btn-block" style="margin-top:.6rem;">Back to home</a>
+    </div>
+</div>
+</div>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/products.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+async function render() {
+    if (!cmRequireLogin()) return;
+
+    const orderId = cmParam('id');
+
+    if (!orderId) {
+        // No specific order — show full order history (used by Profile → My Orders)
+        document.querySelector('h2').textContent = 'My Orders';
+        document.getElementById('summaryText').textContent = 'Everything you\u2019ve bought or claimed on Campus Market.';
+        try {
+            const { orders } = await Api.listOrders();
+            if (!orders.length) {
+                document.getElementById('orderRecap').innerHTML = '<p style="color:var(--muted);font-size:.85rem;">No orders yet. <a href="browse.html">Start browsing →</a></p>';
+                return;
+            }
+            document.getElementById('orderRecap').innerHTML = orders.map((o) => `
+                <a href="order-confirmation.html?id=${o.id}" style="display:block; text-decoration:none; color:inherit; border-bottom:1px solid var(--border); padding:.6rem 0;">
+                    <div class="order-row" style="border:none; padding:0;">
+                        <div class="thumb"><img src="${Api.resolveAssetUrl(o.items[0].image)}" alt="${o.items[0].title}"></div>
+                        <div class="info">
+                            <strong>${o.items.length > 1 ? o.items[0].title + ` +${o.items.length - 1} more` : o.items[0].title}</strong>
+                            <span>${o.postedAt} &middot; ${o.zone.name || 'Meetup'}</span>
+                            ${o.status !== 'confirmed' ? `<span class="status-pill ${o.status === 'cancelled' ? 'is-rejected' : 'is-pending'}" style="margin-top:.3rem;">${o.status === 'cancelled' ? 'Cancelled' : 'Pending Verification'}</span>` : ''}
+                        </div>
+                        <div class="price">${o.subtotal > 0 ? 'GH₵' + o.subtotal.toFixed(2) : 'FREE'}</div>
+                    </div>
+                </a>
+            `).join('');
+        } catch (err) {
+            cmHandleApiError(err, 'Could not load your orders.');
+        }
+        return;
+    }
+
+    try {
+        const { order } = await Api.getOrder(orderId);
+
+        const statusBanner = {
+            pending_verification: {
+                text: 'Pending verification — your account needs admin approval before this is confirmed.',
+                cls: 'is-pending',
+            },
+            cancelled: {
+                text: 'This order was cancelled and the item was returned to the marketplace.',
+                cls: 'is-rejected',
+            },
+        }[order.status];
+
+        if (statusBanner) {
+            document.querySelector('h2').textContent = order.status === 'cancelled' ? 'Order cancelled' : 'Almost there!';
+            document.getElementById('summaryText').innerHTML = `
+                <span class="status-pill ${statusBanner.cls}" style="display:inline-block;margin-bottom:.5rem;">${order.status === 'cancelled' ? 'Cancelled' : 'Pending Verification'}</span>
+                <br>${statusBanner.text}
+            `;
+        } else {
+            document.getElementById('summaryText').textContent = order.subtotal > 0
+                ? `Meet your seller at ${order.zone.name || 'the agreed location'} ${(order.meetupTime || '').toLowerCase()} to complete the exchange.`
+                : `Head to ${order.zone.name || 'the agreed location'} ${(order.meetupTime || '').toLowerCase()} to pick up your item${order.items.length > 1 ? 's' : ''}.`;
+        }
+
+        document.getElementById('orderRecap').innerHTML = order.items.map((it) => `
+            <div class="order-row">
+                <div class="thumb"><img src="${Api.resolveAssetUrl(it.image)}" alt="${it.title}"></div>
+                <div class="info"><strong>${it.title}</strong><span>x${it.qty}</span></div>
+                <div class="price">${it.lineTotal > 0 ? 'GH₵' + it.lineTotal.toFixed(2) : 'FREE'}</div>
+            </div>
+        `).join('');
+    } catch (err) {
+        document.getElementById('summaryText').textContent = 'We could not find that order.';
+        document.getElementById('orderRecap').innerHTML = '<p style="color:var(--muted);font-size:.85rem;">No recent order found.</p>';
+    }
+}
+
+render();
+</script>
+</body>
+</html>

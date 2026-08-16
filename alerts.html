@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alerts — Campus Market</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="shell-page">
+<div class="shell">
+    <header class="shell-topbar">
+        <button class="icon-btn" onclick="cmGoBack('index.html')" aria-label="Back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <h1>Alerts</h1>
+        <span style="width:2.25rem;"></span>
+    </header>
+
+    <div class="shell-body" id="alertsBody">
+        <p style="color:var(--muted);">Loading…</p>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="index.html" data-nav-page="index.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/></svg>
+            Home
+        </a>
+        <a href="cart.html" data-nav-page="cart.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/><path d="M3 4h2l2.4 12h11.2L21 7H6"/></svg>
+            Cart
+        </a>
+        <a href="alerts.html" data-nav-page="alerts.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22a2.5 2.5 0 002.45-2h-4.9A2.5 2.5 0 0012 22zm6-6V11a6 6 0 10-12 0v5l-2 2v1h16v-1l-2-2z"/></svg>
+            Alerts
+        </a>
+        <a href="profile.html" data-nav-page="profile.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6"/></svg>
+            Profile
+        </a>
+    </nav>
+</div>
+</div>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/products.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+async function render() {
+    if (!cmRequireLogin()) return;
+
+    const NOTIF_ICONS = {
+        welcome: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6"/></svg>',
+        admin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 3v6c0 5-3.4 8.4-7 9-3.6-.6-7-4-7-9V6l7-3z"/></svg>',
+        message: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>',
+        order: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2l1.5 4h9L18 2"/><path d="M3.5 6h17l-1.6 13a2 2 0 01-2 1.8H7.1a2 2 0 01-2-1.8L3.5 6z"/><path d="M9 10a3 3 0 006 0"/></svg>',
+    };
+    const DEFAULT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22a2.5 2.5 0 002.45-2h-4.9A2.5 2.5 0 0012 22zm6-6V11a6 6 0 10-12 0v5l-2 2v1h16v-1l-2-2z"/></svg>';
+
+    const body = document.getElementById('alertsBody');
+    try {
+        const { notifications } = await Api.listNotifications();
+        if (!notifications.length) {
+            body.innerHTML = '<div class="empty-state"><p>No alerts yet.</p></div>';
+            return;
+        }
+        body.innerHTML = notifications.map((n) => `
+            <a class="alert-item" href="${n.link || '#'}" style="text-decoration:none; color:inherit; ${n.read ? 'opacity:.6;' : ''}">
+                <span class="dot">${NOTIF_ICONS[n.type] || DEFAULT_ICON}</span>
+                <div><strong>${n.title}</strong><span>${n.body ? n.body + ' &middot; ' : ''}${n.postedAt}</span></div>
+            </a>
+        `).join('');
+        await Api.markAllNotificationsRead();
+    } catch (err) {
+        cmHandleApiError(err, 'Could not load alerts.');
+    }
+}
+
+render();
+</script>
+</body>
+</html>

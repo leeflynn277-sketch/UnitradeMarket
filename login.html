@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — Campus Market</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="auth-page">
+    <div class="auth-brand">
+        <div class="mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6.5C10.5 5.2 8 4.5 5.5 4.5c-.6 0-1 .4-1 1v11c0 .6.4 1 1 1 2.2 0 4.6.6 6 1.8 1.4-1.2 3.8-1.8 6-1.8.6 0 1-.4 1-1v-11c0-.6-.4-1-1-1-2.5 0-5 .7-6.5 2z"/></svg>
+        </div>
+        <h1>Campus Market</h1>
+        <p>Buy and sell books &amp; stuff at student-friendly prices</p>
+    </div>
+
+    <div class="auth-card">
+        <h2>Welcome back</h2>
+        <form id="loginForm">
+            <div class="field">
+                <label for="identifier">Email or Student ID</label>
+                <input type="text" id="identifier" placeholder="your.email@gmail.com or UEB1234567" required>
+            </div>
+            <div class="field">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+            <div class="field-row">
+                <label><input type="checkbox" id="remember"> Remember me</label>
+                <a href="forgot-password.html" id="forgotLink">Forgot password?</a>
+            </div>
+            <button type="submit" class="btn btn-indigo btn-block">Sign In</button>
+        </form>
+        <p class="auth-foot">Don't have an account? <a href="signup.html">Sign Up</a></p>
+    </div>
+
+    <div class="stat-strip">
+        <div class="stat-chip"><strong>50%</strong><span>Lower Prices</span></div>
+        <div class="stat-chip"><strong>100+</strong><span>Active Listings</span></div>
+        <div class="stat-chip"><strong>Safe</strong><span>Student Only</span></div>
+    </div>
+</div>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/products.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+document.getElementById('loginForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    let identifier = document.getElementById('identifier').value.trim();
+    const password = document.getElementById('password').value;
+
+    const studentIdPattern = /^UEB\d{7}$/i;
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const isStudentId = studentIdPattern.test(identifier);
+    const isEmail = emailPattern.test(identifier);
+
+    if (!identifier) {
+        cmToast('Please enter your email or student ID.');
+        return;
+    }
+    if (!isEmail && !isStudentId) {
+        cmToast('Enter a valid email or student ID (UEB followed by 7 digits).');
+        return;
+    }
+    if (isStudentId) {
+        identifier = identifier.toUpperCase();
+    }
+    if (!password) {
+        cmToast('Please enter your password.');
+        return;
+    }
+
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.textContent = 'Signing in…';
+
+    try {
+        const { token, user } = await Api.login({ identifier, password });
+        Api.setSession(token, user);
+        cmToast('Welcome back!');
+        const returnTo = cmParam('returnTo');
+        setTimeout(() => { window.location.href = returnTo || 'browse.html'; }, 350);
+    } catch (err) {
+        cmHandleApiError(err, 'Could not sign in.');
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
+    }
+});
+document.getElementById('forgotLink').addEventListener('click', function (e) {
+    const identifier = document.getElementById('identifier').value.trim();
+    if (identifier) {
+        e.preventDefault();
+        window.location.href = `forgot-password.html?identifier=${encodeURIComponent(identifier)}`;
+    }
+    // If nothing was typed yet, let the link navigate normally to forgot-password.html.
+});
+</script>
+</body>
+</html>

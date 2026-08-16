@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sell an Item — Campus Market</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="shell-page">
+<div class="shell">
+    <header class="shell-topbar">
+        <button class="icon-btn" onclick="cmGoBack('index.html')" aria-label="Back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <h1 id="sellPageTitle">Sell an Item</h1>
+        <span style="width:2.25rem;"></span>
+    </header>
+
+    <div class="shell-body">
+        <div id="accountNotice" class="help-text" style="display:none; margin-bottom:.8rem; padding:.8rem; border-radius:12px; background:#fff7ed; color:#9a2c00;"></div>
+        <form id="sellForm">
+            <div class="field">
+                <label for="title">Product Title</label>
+                <input type="text" id="title" placeholder="e.g. Scientific Calculator" required>
+            </div>
+
+            <div class="field">
+                <label for="category">Category</label>
+                <select id="category" required>
+                    <option value="">Select a category</option>
+                    <option value="books">Books &amp; Stationery</option>
+                    <option value="electronics">Electronics &amp; Gadgets</option>
+                    <option value="fashion">Fashion &amp; Accessories</option>
+                    <option value="sports">Sports &amp; Fitness</option>
+                    <option value="lab">Project &amp; Lab Equipment</option>
+                    <option value="misc">Miscellaneous</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="condition">Condition</label>
+                <select id="condition">
+                    <option>Brand New</option>
+                    <option selected>Like New</option>
+                    <option>Good</option>
+                    <option>Fairly Used</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="description">Description</label>
+                <textarea id="description" rows="3" placeholder="Describe the item's condition and any details buyers should know"></textarea>
+            </div>
+
+            <div class="field-row" style="margin-bottom:.6rem;">
+                <label><input type="checkbox" id="isFree"> This is a free giveaway</label>
+            </div>
+
+            <div class="field" id="priceField">
+                <label for="price">Price (GH₵)</label>
+                <input type="number" id="price" min="0" step="0.5" placeholder="0.00">
+            </div>
+
+            <div class="field-row" style="margin-bottom:.6rem;" id="onSaleRow">
+                <label><input type="checkbox" id="isOnSale"> This is a discounted sale price</label>
+            </div>
+
+            <div class="field" id="originalPriceField" style="display:none;">
+                <label for="originalPrice">Original price (GH₵)</label>
+                <input type="number" id="originalPrice" min="0" step="0.5" placeholder="0.00">
+                <span class="help-text" id="discountCapHint">The sale price can't be discounted below the marketplace minimum.</span>
+            </div>
+
+            <div class="field">
+                <label for="location">Pickup Location</label>
+                <select id="location">
+                    <option>UENR Library</option>
+                    <option>Cafeteria</option>
+                    <option>Old Auditorium</option>
+                    <option>Main Gate</option>
+                    <option>Getfund Hall 1</option>
+                    <option>Science Building</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="sellerContact">Contact number</label>
+                <input type="tel" id="sellerContact" placeholder="e.g. 0244123456">
+                <p class="help-text">Buyers can tap the call button on your listing. Use a number you are comfortable sharing.</p>
+            </div>
+
+            <div class="field" id="verificationSection" style="display:none;">
+                <label for="verificationMethod">Seller Verification</label>
+                <select id="verificationMethod">
+                    <option value="studentId">Verify with Student ID/Staff ID</option>
+                    <option value="ghanaCard">Verify with Ghana Card</option>
+                </select>
+                <p class="help-text">Upload your ID only when you want to verify your account for selling.</p>
+            </div>
+
+            <div class="field" id="verificationPhotoField" style="display:none;">
+                <label for="verificationPhoto">Upload Student/Staff ID Photo</label>
+                <input type="file" id="verificationPhoto" accept="image/*">
+                <p class="help-text">Admins will review this document when you request account verification.</p>
+                <div id="verificationPhotoPreviewWrap" style="display:none; margin-top:.6rem;">
+                    <img id="verificationPhotoPreview" alt="Verification preview" style="width:100px; height:100px; object-fit:cover; border-radius:12px; border:1px solid var(--border);">
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="photo">Upload Photos</label>
+                <input type="file" id="photo" accept="image/*" multiple>
+                <div id="photoPreviewWrap" style="display:none; margin-top:.6rem;">
+                    <div id="photoPreviewList" style="display:flex; flex-wrap:wrap; gap:.5rem;"></div>
+                </div>
+            </div>
+
+            <div class="field" id="ghanaCardField" style="display:none;">
+                <label for="ghanaCard">Ghana Card Number</label>
+                <input type="text" id="ghanaCard" placeholder="e.g. GHA-1234-5678">
+            </div>
+
+            <button type="submit" class="btn btn-green btn-block" style="margin-top:.6rem;">Post Listing</button>
+        </form>
+    </div>
+</div>
+</div>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/products.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+const isFreeBox = document.getElementById('isFree');
+const priceField = document.getElementById('priceField');
+const priceInput = document.getElementById('price');
+const verificationMethod = document.getElementById('verificationMethod');
+const ghanaCardField = document.getElementById('ghanaCardField');
+const ghanaCardInput = document.getElementById('ghanaCard');
+
+const currentUser = cmGetUser();
+const form = document.getElementById('sellForm');
+const noticeEl = document.getElementById('accountNotice');
+const submitBtn = form.querySelector('button[type="submit"]');
+const editId = cmParam('edit');
+let editingProduct = null;
+
+if (!currentUser) {
+    window.location.href = 'login.html?returnTo=' + encodeURIComponent('sell.html' + location.search);
+}
+
+const needsVerification = !editId && !!(currentUser && !currentUser.canSell);
+
+if (needsVerification) {
+    noticeEl.innerHTML = `<strong>${currentUser.accountStatus === 'rejected' ? 'Your account needs attention.' : 'Your account is awaiting admin approval.'}</strong> Your account must be approved before you can post listings. You can still browse items while waiting.`;
+    noticeEl.style.display = 'block';
+    document.getElementById('verificationSection').style.display = 'block';
+    form.querySelectorAll('input, select, textarea, button[type="submit"]').forEach((control) => {
+        if (control !== submitBtn) control.disabled = true;
+    });
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Approval required';
+} else {
+    document.getElementById('verificationSection').style.display = 'none';
+    document.getElementById('verificationPhotoField').style.display = 'none';
+}
+
+if (editId) {
+    document.getElementById('sellPageTitle').textContent = 'Edit Listing';
+    document.title = 'Edit Listing — Campus Market';
+    submitBtn.textContent = 'Save Changes';
+    // Photos and ID verification aren't editable from here — they stay as
+    // originally submitted. Hide those fields so the form matches what
+    // actually gets saved.
+    document.getElementById('verificationSection').style.display = 'none';
+    document.getElementById('verificationPhotoField').style.display = 'none';
+    const photoField = document.getElementById('photo').closest('.field');
+    if (photoField) photoField.style.display = 'none';
+    const ghanaField = document.getElementById('ghanaCardField');
+    if (ghanaField) ghanaField.style.display = 'none';
+
+    (async () => {
+        try {
+            const { product } = await Api.getProduct(editId);
+            if (!product.isMine) {
+                cmToast('You can only edit your own listings.');
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            editingProduct = product;
+            document.getElementById('title').value = product.title;
+            document.getElementById('category').value = product.category;
+            if (product.sub) document.getElementById('condition').value = product.sub;
+            document.getElementById('description').value = product.description || '';
+            document.getElementById('location').value = product.location || 'UENR Library';
+            if (product.price > 0) {
+                isFreeBox.checked = false;
+                priceInput.value = product.price;
+                if (product.originalPrice) {
+                    isOnSaleBox.checked = true;
+                    originalPriceField.style.display = 'block';
+                    originalPriceInput.value = product.originalPrice;
+                }
+            } else {
+                isFreeBox.checked = true;
+                priceInput.disabled = true;
+                priceField.style.opacity = .5;
+            }
+            if (product.sellerContact) {
+                document.getElementById('sellerContact').value = product.sellerContact;
+            }
+        } catch (err) {
+            cmHandleApiError(err, 'Could not load that listing.');
+            window.location.href = 'dashboard.html';
+        }
+    })();
+}
+
+if (currentUser && currentUser.canSell && !currentUser.studentId) {
+    verificationMethod.value = 'ghanaCard';
+    ghanaCardField.style.display = 'block';
+}
+
+verificationMethod.addEventListener('change', () => {
+    ghanaCardField.style.display = verificationMethod.value === 'ghanaCard' ? 'block' : 'none';
+});
+
+isFreeBox.addEventListener('change', () => {
+    if (isFreeBox.checked) {
+        priceInput.value = '';
+        priceInput.disabled = true;
+        priceField.style.opacity = .5;
+        isOnSaleBox.checked = false;
+        isOnSaleBox.disabled = true;
+        originalPriceField.style.display = 'none';
+        onSaleRow.style.opacity = .5;
+    } else {
+        priceInput.disabled = false;
+        priceField.style.opacity = 1;
+        isOnSaleBox.disabled = false;
+        onSaleRow.style.opacity = 1;
+    }
+});
+
+/* ---------- Discounted sale price ---------- */
+const isOnSaleBox = document.getElementById('isOnSale');
+const onSaleRow = document.getElementById('onSaleRow');
+const originalPriceField = document.getElementById('originalPriceField');
+const originalPriceInput = document.getElementById('originalPrice');
+const discountCapHint = document.getElementById('discountCapHint');
+let minSalePercent = 70;
+
+Api.getDiscountCap().then((data) => {
+    minSalePercent = data.minSalePercent;
+    discountCapHint.textContent = `The sale price can't be discounted below ${minSalePercent}% of the original price.`;
+}).catch(() => {});
+
+isOnSaleBox.addEventListener('change', () => {
+    originalPriceField.style.display = isOnSaleBox.checked ? 'block' : 'none';
+    if (!isOnSaleBox.checked) originalPriceInput.value = '';
+});
+
+function validateDiscountClientSide() {
+    if (!isOnSaleBox.checked) return true;
+    const original = Number(originalPriceInput.value || 0);
+    const sale = Number(priceInput.value || 0);
+    if (!original || original <= 0) {
+        cmToast('Enter the original price for this sale item.');
+        return false;
+    }
+    if (sale > original) {
+        cmToast('Sale price cannot be higher than the original price.');
+        return false;
+    }
+    const floor = Math.round(original * (minSalePercent / 100) * 100) / 100;
+    if (sale < floor) {
+        cmToast(`Sale price can't go below ${minSalePercent}% of the original price (minimum GH₵${floor.toFixed(2)}).`);
+        return false;
+    }
+    return true;
+}
+
+let uploadedImages = [];
+let verificationPhoto = null;
+
+document.getElementById('photo').addEventListener('change', (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+
+    uploadedImages = [];
+    const previewList = document.getElementById('photoPreviewList');
+    previewList.innerHTML = '';
+
+    files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            uploadedImages.push(ev.target.result);
+            const img = document.createElement('img');
+            img.src = ev.target.result;
+            img.alt = 'Preview';
+            img.style.width = '100px';
+            img.style.height = '100px';
+            img.style.objectFit = 'cover';
+            img.style.borderRadius = '12px';
+            img.style.border = '1px solid var(--border)';
+            previewList.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+    });
+
+    document.getElementById('photoPreviewWrap').style.display = 'block';
+});
+
+document.getElementById('verificationPhoto').addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) {
+        verificationPhoto = null;
+        document.getElementById('verificationPhotoPreviewWrap').style.display = 'none';
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        verificationPhoto = ev.target.result;
+        const preview = document.getElementById('verificationPhotoPreview');
+        preview.src = ev.target.result;
+        document.getElementById('verificationPhotoPreviewWrap').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+});
+
+document.getElementById('sellForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const user = cmGetUser();
+    if (!user) {
+        window.location.href = 'login.html?returnTo=sell.html';
+        return;
+    }
+
+    const title = document.getElementById('title').value.trim();
+    if (!title) {
+        cmToast('Please give your item a title.');
+        return;
+    }
+    if (!document.getElementById('category').value) {
+        cmToast('Please choose a category.');
+        return;
+    }
+
+    const method = verificationMethod ? verificationMethod.value : null;
+    let verification = null;
+
+    if (method) {
+        if (method === 'studentId') {
+            const studentIdValue = user.studentId?.trim();
+            if (!studentIdValue) {
+                cmToast('No student ID found on file. Please verify with your Ghana card or skip verification for now.');
+                return;
+            }
+            verification = { method: 'Student ID', value: studentIdValue };
+        } else {
+            const ghanaCard = ghanaCardInput.value.trim();
+            if (!ghanaCard) {
+                cmToast('Please enter your Ghana card number to verify.');
+                return;
+            }
+            if (ghanaCard.length < 7) {
+                cmToast('Please enter a valid Ghana card number.');
+                return;
+            }
+            const masked = ghanaCard.replace(/.(?=.{4})/g, '*');
+            verification = { method: 'Ghana Card', value: masked };
+        }
+    }
+
+    const sellerContact = document.getElementById('sellerContact').value.trim();
+    if (sellerContact && !/^\+?\d{10,13}$/.test(sellerContact)) {
+        cmToast('Please enter a valid contact number, like 0244123456 or +233244123456.');
+        return;
+    }
+
+    if (!validateDiscountClientSide()) return;
+
+    const payload = {
+        title,
+        sub: document.getElementById('condition').value,
+        condition: document.getElementById('condition').value,
+        category: document.getElementById('category').value || 'misc',
+        isFree: isFreeBox.checked,
+        price: isFreeBox.checked ? 0 : Number(priceInput.value || 0),
+        originalPrice: (!isFreeBox.checked && isOnSaleBox.checked) ? Number(originalPriceInput.value || 0) : null,
+        description: document.getElementById('description').value || 'No description provided.',
+        location: document.getElementById('location').value,
+        sellerContact: sellerContact || null,
+        images: uploadedImages,
+        verificationPhoto: verificationPhoto || null,
+        verification: verification || null,
+    };
+
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+
+    if (editId) {
+        btn.textContent = 'Saving…';
+        try {
+            await Api.updateProduct(editId, payload);
+            cmToast('Listing updated!');
+            setTimeout(() => { window.location.href = `product.html?id=${editId}`; }, 450);
+        } catch (err) {
+            cmHandleApiError(err, 'Could not save your changes.');
+            btn.disabled = false;
+            btn.textContent = 'Save Changes';
+        }
+        return;
+    }
+
+    btn.textContent = 'Posting…';
+    try {
+        await Api.createProduct(payload);
+        cmToast('Listing posted!');
+        setTimeout(() => { window.location.href = 'dashboard.html'; }, 450);
+    } catch (err) {
+        cmHandleApiError(err, 'Could not post your listing.');
+        btn.disabled = false;
+        btn.textContent = 'Post Listing';
+    }
+});
+</script>
+</body>
+</html>

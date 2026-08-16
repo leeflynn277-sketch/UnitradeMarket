@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Listings — Campus Market</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="browse-view">
+<div class="shell-page">
+<div class="shell">
+    <header class="shell-topbar">
+        <button class="icon-btn" onclick="cmGoBack('profile.html')" aria-label="Back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <h1>My Listings</h1>
+        <a class="icon-btn" href="sell.html" aria-label="New listing">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        </a>
+    </header>
+
+    <div class="shell-body">
+        <div class="dash-tabs" id="dashTabs">
+            <button type="button" class="dash-tab is-active" data-status=""><span class="dot"></span>All <span id="countAll"></span></button>
+            <button type="button" class="dash-tab" data-status="active"><span class="dot is-green"></span>Active <span id="countActive"></span></button>
+            <button type="button" class="dash-tab" data-status="closed"><span class="dot"></span>Closed <span id="countClosed"></span></button>
+        </div>
+
+        <div class="dash-toolbar">
+            <select id="categoryFilter">
+                <option value="">All categories</option>
+            </select>
+            <a href="sell.html" class="btn btn-green btn-sm btn-pill">+ New listing</a>
+        </div>
+
+        <div id="dashList"></div>
+        <div id="dashEmpty" class="empty-state" style="display:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <p>You have not listed anything for sale or giveaway yet.<br><a href="sell.html">Create your first listing</a></p>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="index.html" data-nav-page="index.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/></svg>
+            Home
+        </a>
+        <a href="cart.html" data-nav-page="cart.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/><path d="M3 4h2l2.4 12h11.2L21 7H6"/></svg>
+            Cart
+        </a>
+        <a href="alerts.html" data-nav-page="alerts.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22a2.5 2.5 0 002.45-2h-4.9A2.5 2.5 0 0012 22zm6-6V11a6 6 0 10-12 0v5l-2 2v1h16v-1l-2-2z"/></svg>
+            Alerts
+        </a>
+        <a href="profile.html" data-nav-page="profile.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6"/></svg>
+            Profile
+        </a>
+    </nav>
+</div>
+</div>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/products.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+if (!cmRequireLogin()) { /* redirected */ }
+
+let allMine = [];
+let activeStatus = cmParam('status') || '';
+let activeCategory = '';
+
+const STATUS_LABELS = {
+    active: 'Active',
+    closed: 'Closed',
+    sold: 'Sold',
+    claimed: 'Claimed',
+    removed: 'Removed',
+};
+
+document.getElementById('categoryFilter').innerHTML += CM_CATEGORIES.map((c) => `<option value="${c.key}">${c.label}</option>`).join('');
+
+function statusBadgeClass(status) {
+    return status === 'active' ? 'is-active' : '';
+}
+
+function cardHtml(p) {
+    const isFree = !(p.price > 0);
+    const s = p.stats || { views: 0, saves: 0, chats: 0 };
+    const isClosed = p.status !== 'active';
+    return `
+    <div class="dash-card" data-id="${p.id}">
+        <div class="dash-card-main">
+            <div class="thumb"><img src="${Api.resolveAssetUrl(p.image)}" alt="${p.title}" loading="lazy"></div>
+            <div class="body">
+                <span class="price ${isFree ? 'free' : ''}">${cmFormatPrice(p.price)}</span>
+                <a class="title" href="product.html?id=${p.id}">${p.title}</a>
+                <div class="meta-row">
+                    <span class="status-pill ${isClosed ? 'is-rejected' : 'is-approved'}">${STATUS_LABELS[p.status] || p.status}</span>
+                    <span class="created">Created ${p.postedAt}</span>
+                </div>
+                <div class="dash-stats">
+                    <span class="dash-stat"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg> ${s.views} view${s.views === 1 ? '' : 's'}</span>
+                    <span class="dash-stat"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 17.3l-6.2 3.7 1.6-7-5.4-4.7 7.1-.6L12 2l2.9 6.7 7.1.6-5.4 4.7 1.6 7z"/></svg> ${s.saves} save${s.saves === 1 ? '' : 's'}</span>
+                    <span class="dash-stat"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> ${s.chats} chat${s.chats === 1 ? '' : 's'}</span>
+                </div>
+            </div>
+        </div>
+        <div class="dash-card-actions">
+            <div class="dash-card-links">
+                <a href="sell.html?edit=${p.id}" class="dash-link-edit">Edit</a>
+                <button type="button" class="dash-link-delete" data-action="delete" data-id="${p.id}">Delete</button>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm btn-pill" data-action="toggle" data-id="${p.id}" data-status="${p.status}">
+                ${isClosed ? 'Publish' : 'Close listing'}
+            </button>
+        </div>
+    </div>`;
+}
+
+function updateTabCounts() {
+    document.getElementById('countAll').textContent = `(${allMine.length})`;
+    document.getElementById('countActive').textContent = `(${allMine.filter((p) => p.status === 'active').length})`;
+    document.getElementById('countClosed').textContent = `(${allMine.filter((p) => p.status !== 'active').length})`;
+}
+
+function render() {
+    let items = allMine;
+    if (activeStatus === 'active') items = items.filter((p) => p.status === 'active');
+    if (activeStatus === 'closed') items = items.filter((p) => p.status !== 'active');
+    if (activeCategory) items = items.filter((p) => p.category === activeCategory);
+
+    const list = document.getElementById('dashList');
+    const empty = document.getElementById('dashEmpty');
+
+    if (!items.length) {
+        list.innerHTML = '';
+        empty.style.display = 'block';
+        empty.querySelector('p').innerHTML = allMine.length
+            ? 'No listings match this filter.'
+            : 'You have not listed anything for sale or giveaway yet.<br><a href="sell.html">Create your first listing</a>';
+        return;
+    }
+    empty.style.display = 'none';
+    list.innerHTML = items.map(cardHtml).join('');
+
+    list.querySelectorAll('[data-action="delete"]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+            if (!confirm('Delete this listing? This cannot be undone.')) return;
+            try {
+                await Api.deleteProduct(btn.dataset.id);
+                cmToast('Listing deleted.');
+                await load();
+            } catch (err) {
+                cmHandleApiError(err, 'Could not delete listing.');
+            }
+        });
+    });
+
+    list.querySelectorAll('[data-action="toggle"]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+            const isClosed = btn.dataset.status !== 'active';
+            const nextStatus = isClosed ? 'active' : 'closed';
+            btn.disabled = true;
+            try {
+                await Api.updateProduct(btn.dataset.id, { status: nextStatus });
+                cmToast(isClosed ? 'Listing published.' : 'Listing closed.');
+                await load();
+            } catch (err) {
+                cmHandleApiError(err, 'Could not update listing.');
+                btn.disabled = false;
+            }
+        });
+    });
+}
+
+async function load() {
+    try {
+        const { products } = await Api.listProducts({ mine: '1' });
+        allMine = products;
+    } catch (err) {
+        cmHandleApiError(err, 'Could not load your listings.');
+        allMine = [];
+    }
+    updateTabCounts();
+    render();
+}
+
+document.querySelectorAll('.dash-tab').forEach((btn) => {
+    btn.addEventListener('click', () => {
+        activeStatus = btn.dataset.status;
+        document.querySelectorAll('.dash-tab').forEach((b) => b.classList.toggle('is-active', b === btn));
+        render();
+    });
+});
+document.getElementById('categoryFilter').addEventListener('change', (e) => {
+    activeCategory = e.target.value;
+    render();
+});
+
+if (activeStatus) {
+    document.querySelectorAll('.dash-tab').forEach((b) => b.classList.toggle('is-active', b.dataset.status === activeStatus));
+}
+
+load();
+</script>
+</body>
+</html>
